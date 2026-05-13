@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+<title>Login</title>
+
+<link rel="stylesheet"
+href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+
+<style>
+
+body{
+background:#d9e2ef;
+height:100vh;
+display:flex;
+align-items:center;
+justify-content:center;
+}
+
+.login-box{
+width:400px;
+background:white;
+box-shadow:0 4px 10px rgba(0,0,0,0.2);
+border-radius:6px;
+overflow:hidden;
+}
+
+.login-header{
+background:#1565c0;
+color:white;
+padding:15px;
+font-size:22px;
+font-weight:bold;
+}
+
+.login-body{
+padding:25px;
+}
+
+.btn-login{
+background:#1565c0;
+color:white;
+}
+
+.btn-login:hover{
+background:#0d47a1;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="login-box">
+
+<div class="login-header">
+Login 
+</div>
+
+<div class="login-body">
+
+<form method="POST">
+
+<div class="mb-3">
+<label class="form-label">Email *</label>
+<input type="email" name="email" class="form-control" placeholder="Enter Email" required>
+</div>
+
+<div class="mb-3">
+<label class="form-label">Password *</label>
+<input type="password" name="password" class="form-control" placeholder="Enter Password" required>
+</div>
+
+<button class="btn btn-login w-100">Login</button>
+
+</form>
+
+<p class="mt-3 text-center">
+Don't have an account?
+<a href="/register">Register</a>
+</p>
+
+</div>
+
+</div>
+
+</body>
+</html>

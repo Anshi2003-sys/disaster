@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Post Disaster Alert</title>
+
+<link rel="stylesheet"
+href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+
+body{
+background:#f4f6f9;
+font-family:Arial, Helvetica, sans-serif;
+}
+
+/* MAIN CONTAINER */
+
+.alert-container{
+max-width:650px;
+margin:60px auto;
+background:white;
+padding:35px;
+border-radius:12px;
+box-shadow:0 4px 15px rgba(0,0,0,0.1);
+}
+
+/* HEADING */
+
+.alert-title{
+text-align:center;
+margin-bottom:30px;
+color:#c62828;
+font-weight:bold;
+}
+
+/* LABELS */
+
+.form-label{
+font-weight:600;
+margin-bottom:8px;
+}
+
+/* INPUTS */
+
+.form-control{
+border-radius:8px;
+padding:12px;
+}
+
+textarea{
+height:180px;
+resize:none;
+}
+
+/* BUTTONS */
+
+.btn-post{
+background:#dc3545;
+color:white;
+border:none;
+padding:12px;
+width:100%;
+border-radius:8px;
+font-size:18px;
+font-weight:bold;
+transition:0.3s;
+}
+
+.btn-post:hover{
+background:#bb2d3b;
+}
+
+.back-btn{
+text-decoration:none;
+display:inline-block;
+margin-bottom:20px;
+color:#333;
+font-weight:600;
+}
+
+.back-btn:hover{
+color:#dc3545;
+}
+
+/* RESPONSIVE */
+
+@media (max-width:768px){
+
+.alert-container{
+margin:20px;
+padding:25px;
+}
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="alert-container">
+
+<a href="/admin_dashboard" class="back-btn">
+<i class="fa fa-arrow-left"></i> Back to Dashboard
+</a>
+
+<h2 class="alert-title">
+🚨 Post Disaster Alert
+</h2>
+
+<form method="POST">
+
+<div class="mb-3">
+
+<label class="form-label">
+Alert Title
+</label>
+
+<input
+type="text"
+name="title"
+class="form-control"
+placeholder="Enter alert title"
+required>
+
+</div>
+
+<div class="mb-4">
+
+<label class="form-label">
+Alert Message
+</label>
+
+<textarea
+name="message"
+class="form-control"
+placeholder="Write disaster alert message here..."
+required></textarea>
+
+</div>
+
+<button type="submit" class="btn-post">
+<i class="fa fa-paper-plane"></i> Post Alert
+</button>
+
+</form>
+
+</div>
+
+</body>
+</html>

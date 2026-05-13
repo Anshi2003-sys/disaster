@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Emergency Operation Centres</title>
+
+<link rel="stylesheet"
+href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+body {
+    background-color: #f4f6f9;
+    padding: 20px;
+}
+
+/* Heading */
+h1 {
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+/* Table */
+.table {
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+/* Header */
+thead {
+    background-color: #f1d25c;
+}
+
+/* Column width */
+th:nth-child(2), td:nth-child(2) {
+    width: 40%;
+}
+
+/* Phone box */
+.phone-box {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f8f9fa;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    border-radius: 8px;
+}
+
+/* Labels */
+.phone-box strong {
+    font-size: 13px;
+}
+
+.emergency-label {
+    color: red;
+}
+
+.office-label {
+    color: #007bff;
+}
+
+/* Number */
+.phone-box span {
+    font-size: 16px;
+    font-weight: 500;
+}
+
+/* Call button */
+.call-btn {
+    background: #28a745;
+    color: white;
+    border-radius: 50%;
+    padding: 8px 10px;
+    transition: 0.3s;
+}
+
+.call-btn:hover {
+    background: #218838;
+    transform: scale(1.1);
+}
+
+/* Hover */
+tbody tr:hover {
+    background-color: #eef5ff;
+}
+</style>
+
+</head>
+
+<body>
+
+<h1>Emergency Operation Centres</h1>
+
+<input type="text" id="searchBox" class="form-control mb-3"
+placeholder="Search district...">
+
+<table class="table table-bordered">
+
+<thead>
+<tr>
+<th>Center Name</th>
+<th>Contact No.</th>
+<th>Address</th>
+</tr>
+</thead>
+
+<tbody id="tableBody">
+
+<!-- State EOC -->
+<tr>
+<td>State EOC</td>
+<td>
+
+<div class="phone-box">
+<div>
+<strong class="emergency-label">🚨 State Emergency Helpline</strong><br>
+<span>1070</span>
+</div>
+<a href="tel:1070" class="call-btn"><i class="fas fa-phone"></i></a>
+</div>
+
+<div class="phone-box">
+<div>
+<strong class="office-label">☎️ Office Contact</strong><br>
+<span>9366331931</span>
+</div>
+<a href="tel:9366331931" class="call-btn"><i class="fas fa-phone"></i></a>
+</div>
+
+</td>
+<td>SEOC, Dte. of DM&R, Chawnpui, Aizawl</td>
+</tr>
+
+<!-- Aizawl -->
+<tr>
+<td>Aizawl District</td>
+<td>
+
+<div class="phone-box">
+<div>
+<strong class="emergency-label">🚨 District Emergency Helpline</strong><br>
+<span>1077</span>
+</div>
+<a href="tel:1077" class="call-btn"><i class="fas fa-phone"></i></a>
+</div>
+
+<div class="phone-box">
+<div>
+<strong class="office-label">☎️ Office Landline</strong><br>
+<span>03892321119</span>
+</div>
+<a href="tel:03892321119" class="call-btn"><i class="fas fa-phone"></i></a>
+</div>
+
+</td>
+<td>DEOC, DC Office, Treasury Square, Aizawl</td>
+</tr>
+
+<!-- Lunglei -->
+<tr>
+<td>Lunglei District</td>
+<td>
+
+<div class="phone-box">
+<div>
+<strong class="emergency-label">🚨 District Emergency Helpline</strong><br>
+<span>1077</span>
+</div>
+<a href="tel:1077" class="call-btn"><i class="fas fa-phone"></i></a>
+</div>
+
+<div class="phone-box">
+<div>
+<strong class="office-label">☎️ Office Landline</strong><br>
+<span>03722323635</span>
+</div>
+<a href="tel:03722323635" class="call-btn"><i class="fas fa-phone"></i></a>
+</div>
+
+<div class="phone-box">
+<div>
+<strong class="office-label">☎️ Alternate Line</strong><br>
+<span>2325949</span>
+</div>
+<a href="tel:2325949" class="call-btn"><i class="fas fa-phone"></i></a>
+</div>
+
+<div class="phone-box">
+<div>
+<strong class="office-label">📱 Mobile Contact</strong><br>
+<span>9862653478</span>
+</div>
+<a href="tel:9862653478" class="call-btn"><i class="fas fa-phone"></i></a>
+</div>
+
+</td>
+<td>DEOC, DC Office, Venglai, Lunglei</td>
+</tr>
+
+<!-- Siaha -->
+<tr>
+<td>Siaha District</td>
+<td>
+
+<div class="phone-box">
+<div>
+<strong class="emergency-label">🚨 District Emergency Helpline</strong><br>
+<span>1077</span>
+</div>
+<a href="tel:1077" class="call-btn"><i class="fas fa-phone"></i></a>
+</div>
+
+<div class="phone-box">
+<div>
+<strong class="office-label">☎️ Office Landline</strong><br>
+<span>03835222055</span>
+</div>
+<a href="tel:03835222055" class="call-btn"><i class="fas fa-phone"></i></a>
+</div>
+
+<div class="phone-box">
+<div>
+<strong class="office-label">📱 Mobile Contact</strong><br>
+<span>9774478529</span>
+</div>
+<a href="tel:9774478529" class="call-btn"><i class="fas fa-phone"></i></a>
+</div>
+
+</td>
+<td>DEOC, DC Office, Vaihpi, Siaha</td>
+</tr>
+
+<!-- Champhai -->
+<tr>
+<td>Champhai District</td>
+<td>
+
+<div class="phone-box">
+<div>
+<strong class="emergency-label">🚨 District Emergency Helpline</strong><br>
+<span>1077</span>
+</div>
+<a href="tel:1077" class="call-btn"><i class="fas fa-phone"></i></a>
+</div>
+
+<div class="phone-box">
+<div>
+<strong class="office-label">☎️ Office Landline</strong><br>
+<span>03831234404</span>
+</div>
+<a href="tel:03831234404" class="call-btn"><i class="fas fa-phone"></i></a>
+</div>
+
+<div class="phone-box">
+<div>
+<strong class="office-label">📱 Mobile Contact</strong><br>
+<span>986276750</span>
+</div>
+<a href="tel:986276750" class="call-btn"><i class="fas fa-phone"></i></a>
+</div>
+
+</td>
+<td>DEOC, DC Office, Keifangtlang, Champhai</td>
+</tr>
+
+<!-- Kolasib -->
+<tr>
+<td>Kolasib District</td>
+<td>
+
+<div class="phone-box">
+<div>
+<strong class="emergency-label">🚨 District Emergency Helpline</strong><br>
+<span>1077</span>
+</div>
+<a href="tel:1077" class="call-btn"><i class="fas fa-phone"></i></a>
+</div>
+
+<div class="phone-box">
+<div>
+<strong class="office-label">☎️ Office Landline</strong><br>
+<span>03837221999</span>
+</div>
+<a href="tel:03837221999" class="call-btn"><i class="fas fa-phone"></i></a>
+</div>
+
+<div class="phone-box">
+<div>
+<strong class="office-label">📱 Mobile Contact</strong><br>
+<span>7005576750</span>
+</div>
+<a href="tel:7005576750" class="call-btn"><i class="fas fa-phone"></i></a>
+</div>
+
+</td>
+<td>DEOC, DC Office, Project Veng, Kolasib</td>
+</tr>
+
+</tbody>
+</table>
+
+<script>
+document.getElementById('searchBox').addEventListener('keyup', function() {
+    let value = this.value.toLowerCase();
+    let rows = document.querySelectorAll('#tableBody tr');
+
+    rows.forEach(row => {
+        row.style.display = row.innerText.toLowerCase().includes(value)
+            ? ''
+            : 'none';
+    });
+});
+</script>
+
+</body>
+</html>

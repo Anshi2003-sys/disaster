@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Admin Disaster Alert</title>
+
+<link rel="stylesheet"
+href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+
+<style>
+
+body{
+background:#f4f6f9;
+}
+
+.card{
+border:none;
+box-shadow:0px 4px 12px rgba(0,0,0,0.1);
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container mt-5">
+
+<div class="card p-4">
+
+<h2 class="text-center mb-4 text-danger">Admin Disaster Alert</h2>
+
+<form method="POST">
+
+<!-- Disaster Type -->
+<div class="mb-3">
+<label>Disaster Type</label>
+
+<select name="disaster_id" class="form-control" required>
+
+{% for d in disasters %}
+<option value="{{ d.disaster_id }}">
+{{ d.disaster_name }}
+</option>
+{% endfor %}
+
+</select>
+
+</div>
+
+
+<!-- Location -->
+
+<div class="mb-3">
+
+<label class="form-label">Location</label>
+
+<select name="location" id="location" class="form-control"
+onchange="setCoordinates()" required>
+
+<option value="">Select Location</option>
+
+<!-- Aizawl Areas -->
+
+<option value="Aizawl" data-lat="23.7271" data-lng="92.7176">
+Aizawl
+</option>
+
+<option value="Durtlang" data-lat="23.7616" data-lng="92.7285">
+Durtlang
+</option>
+
+<option value="Bawngkawn" data-lat="23.7440" data-lng="92.7280">
+Bawngkawn
+</option>
+
+<option value="Chanmari" data-lat="23.7305" data-lng="92.7192">
+Chanmari
+</option>
+
+<option value="Zarkawt" data-lat="23.7297" data-lng="92.7161">
+Zarkawt
+</option>
+
+
+<!-- Other Districts -->
+
+<option value="Champhai" data-lat="23.4560" data-lng="93.3282">
+Champhai
+</option>
+
+<option value="Lunglei" data-lat="22.8870" data-lng="92.7356">
+Lunglei
+</option>
+
+<option value="Serchhip" data-lat="23.3167" data-lng="92.8500">
+Serchhip
+</option>
+
+<option value="Kolasib" data-lat="24.2230" data-lng="92.6765">
+Kolasib
+</option>
+
+</select>
+
+</div>
+
+
+<!-- Latitude -->
+
+<div class="mb-3">
+
+<label class="form-label">Latitude</label>
+
+<input type="text"
+id="latitude"
+name="latitude"
+class="form-control"
+readonly>
+
+</div>
+
+
+<!-- Longitude -->
+
+<div class="mb-3">
+
+<label class="form-label">Longitude</label>
+
+<input type="text"
+id="longitude"
+name="longitude"
+class="form-control"
+readonly>
+
+</div>
+
+
+<!-- Description -->
+
+<div class="mb-3">
+
+<label class="form-label">Description</label>
+
+<textarea name="description"
+class="form-control"
+rows="4"
+placeholder="Describe the disaster situation"></textarea>
+
+</div>
+
+
+<!-- Submit -->
+
+<button type="submit"
+class="btn btn-danger w-100">
+
+Publish Disaster Alert
+
+</button>
+
+</form>
+
+</div>
+
+</div>
+
+
+<script>
+
+function setCoordinates(){
+
+var location = document.getElementById("location");
+
+var selected = location.options[location.selectedIndex];
+
+var lat = selected.getAttribute("data-lat");
+var lng = selected.getAttribute("data-lng");
+
+document.getElementById("latitude").value = lat;
+document.getElementById("longitude").value = lng;
+
+}
+
+</script>
+
+</body>
+</html>

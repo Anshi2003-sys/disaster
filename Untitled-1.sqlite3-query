@@ -1,0 +1,6 @@
+-- database: ./database.db
+
+SELECT * FROM reports;
+
+ALTER TABLE reports ADD COLUMN latitude REAL;
+ALTER TABLE reports ADD COLUMN longitude REAL;

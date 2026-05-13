@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Admin Dashboard</title>
+
+<link rel="stylesheet"
+href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+
+body{
+background:#f4f6f9;
+}
+
+.sidebar{
+height:100vh;
+background:#343a40;
+color:white;
+position:fixed;
+width:230px;
+padding-top:20px;
+}
+
+.sidebar a{
+color:white;
+display:block;
+padding:12px 20px;
+text-decoration:none;
+}
+
+.sidebar a:hover{
+background:#495057;
+}
+
+.content{
+margin-left:240px;
+padding:30px;
+}
+
+.card{
+border:none;
+box-shadow:0 4px 10px rgba(0,0,0,0.1);
+}
+
+.logout{
+position:absolute;
+bottom:20px;
+width:100%;
+}
+
+.post-alert-btn{
+display:block;
+margin-left:-80px;
+padding:12px 20px;
+color:#dc3545;
+text-decoration:none;
+border-radius:8px;
+text-align:center;
+transition:0.3s;
+font-size: 20px;
+}
+
+.post-alert-btn:hover{
+color:white;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<!-- Sidebar -->
+
+<div class="sidebar">
+
+<h4 class="text-center mb-4">Admin Panel</h4>
+
+<a href="/admin_dashboard">
+<i class="fa fa-home"></i> Dashboard
+</a>
+
+<a href="/admin_report">
+<i class="fa fa-triangle-exclamation"></i> Report Disaster
+</a>
+
+<a href="/alerts">
+<i class="fa fa-bell"></i> Disaster Alerts
+</a>
+
+<a href="/analytics">
+<i class="fa fa-chart-bar"></i> Analytics
+</a>
+
+<a href="/map">
+<i class="fa fa-map"></i> Map View
+</a>
+
+<a href="/post_alert" class="post-alert-btn">
+🚨 Post Alert
+</a>
+
+<a href="/about">
+<i class="fa fa-info-circle"></i> About System
+</a>
+
+<div class="logout">
+
+<a href="/logout">
+<i class="fa fa-sign-out-alt"></i> Logout
+</a>
+
+</div>
+
+</div>
+
+
+<!-- Main Content -->
+
+<div class="content">
+
+<h2 class="mb-4">DisasterEye Admin Dashboard</h2>
+
+<div class="row">
+
+<div class="col-md-4">
+
+<div class="card p-3 text-center">
+
+<h3>{{ total_reports }}</h3>
+
+<p>Total Reports</p>
+
+</div>
+
+</div>
+
+<div class="col-md-4">
+
+<div class="card p-3 text-center">
+
+<h3>{{ pending_reports }}</h3>
+
+<p>Pending Reports</p>
+
+</div>
+
+</div>
+
+<div class="col-md-4">
+
+<div class="card p-3 text-center">
+
+<h3>{{ approved_reports }}</h3>
+
+<p>Approved Reports</p>
+
+</div>
+
+</div>
+
+</div>
+
+
+<!-- Recent Alerts -->
+
+<div class="mt-5">
+
+<h4>Recent Disaster Alerts</h4>
+
+<table class="table table-bordered mt-3">
+
+<!-- <table class="table table-bordered mt-3"> -->
+<thead class="table-dark">
+<tr>
+<th>Disaster</th>
+<th>Location</th>
+<th>Status</th>
+<th>Reported By</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+
+{% for r in reports %}
+
+<tr>
+
+<td>{{ r.disaster_name }}</td>
+<td>{{ r.location }}</td>
+<td>{{ r.status }}</td>
+<td>{{ r.reported_by }}</td>
+
+<td>
+
+<a href="/approve/{{ r.report_id }}" class="btn btn-success btn-sm">
+Approve
+</a>
+
+<a href="/reject/{{ r.report_id }}" class="btn btn-warning btn-sm">
+Reject
+</a>
+
+<a href="/delete/{{ r.report_id }}" class="btn btn-danger btn-sm">
+Delete
+</a>
+
+</td>
+
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+</table>
+
+</body>
+</html>
