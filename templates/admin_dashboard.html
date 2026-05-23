@@ -65,7 +65,7 @@ text-decoration:none;
 border-radius:8px;
 text-align:center;
 transition:0.3s;
-font-size: 20px;
+font-size:20px;
 }
 
 .post-alert-btn:hover{
@@ -155,7 +155,7 @@ color:white;
 
 </div>
 
-<div class="col-md-4">
+<!-- <div class="col-md-4">
 
 <div class="card p-3 text-center">
 
@@ -165,21 +165,65 @@ color:white;
 
 </div>
 
-</div>
+</div> -->
 
 </div>
 
 
-<!-- Recent Alerts -->
+<!-- Alerts Reported by Admin -->
+
+<h3 class="mt-4">Alerts Reported by Admin</h3>
+
+<table class="table table-bordered">
+
+<tr>
+<th>Disaster</th>
+<th>District</th>
+<th>Area</th>
+<th>Description</th>
+<!-- <th>Time</th> -->
+<th>Action</th>
+</tr>
+
+{% for a in admin_reports %}
+
+<tr>
+
+<td>{{ a.disaster_name }}</td>
+<td>{{ a.district }}</td>
+<td>{{ a.area }}</td>
+<td>{{ a.description }}</td>
+<!-- <td>{{ a.created_at }}</td> -->
+
+<td>
+
+<a href="/delete_admin_report/{{ a.admin_report_id }}"
+class="btn btn-danger btn-sm"
+onclick="return confirm('Delete this disaster report?')">
+
+Delete
+
+</a>
+
+</td>
+
+</tr>
+
+{% endfor %}
+
+</table>
+
+
+<!-- Alerts Reported by User -->
 
 <div class="mt-5">
 
-<h4>Recent Disaster Alerts</h4>
+<h4>Alerts Reported by User</h4>
 
 <table class="table table-bordered mt-3">
 
-<!-- <table class="table table-bordered mt-3"> -->
 <thead class="table-dark">
+
 <tr>
 <th>Disaster</th>
 <th>Location</th>
@@ -187,7 +231,9 @@ color:white;
 <th>Reported By</th>
 <th>Action</th>
 </tr>
+
 </thead>
+
 <tbody>
 
 {% for r in reports %}
@@ -201,16 +247,25 @@ color:white;
 
 <td>
 
-<a href="/approve/{{ r.report_id }}" class="btn btn-success btn-sm">
+<a href="/approve/{{ r.report_id }}"
+class="btn btn-success btn-sm">
+
 Approve
+
 </a>
 
-<a href="/reject/{{ r.report_id }}" class="btn btn-warning btn-sm">
+<a href="/reject/{{ r.report_id }}"
+class="btn btn-warning btn-sm">
+
 Reject
+
 </a>
 
-<a href="/delete/{{ r.report_id }}" class="btn btn-danger btn-sm">
+<a href="/delete/{{ r.report_id }}"
+class="btn btn-danger btn-sm">
+
 Delete
+
 </a>
 
 </td>
@@ -222,6 +277,10 @@ Delete
 </tbody>
 
 </table>
+
+</div>
+
+</div>
 
 </body>
 </html>

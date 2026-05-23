@@ -5,7 +5,8 @@
 <title>Mizoram Disaster Intelligence Map</title>
 
 <!-- Leaflet -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<link rel="stylesheet"
+href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 
 <!-- Bootstrap -->
 <link rel="stylesheet"
@@ -16,12 +17,18 @@ href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
 href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.css"/>
 
 <style>
-#map{
-    height:85vh;
-    border-radius: 12px;
+
+body{
+    overflow-x:hidden;
 }
 
-.legend {
+#map{
+    height:85vh;
+    border-radius:12px;
+    box-shadow:0 0 15px rgba(0,0,0,0.2);
+}
+
+.legend{
     position:absolute;
     bottom:20px;
     left:20px;
@@ -33,14 +40,25 @@ href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.css"/>
     font-size:14px;
 }
 
-.popup-box {
-    font-size: 14px;
+.popup-box{
+    font-size:14px;
 }
-.popup-box img {
-    width: 100%;
-    border-radius: 8px;
-    margin-top: 8px;
+
+.popup-box img{
+    width:100%;
+    border-radius:8px;
+    margin-top:8px;
 }
+
+.filter-buttons{
+    margin-bottom:15px;
+}
+
+#markerCount{
+    font-weight:bold;
+    margin-bottom:10px;
+}
+
 </style>
 
 </head>
@@ -51,153 +69,373 @@ href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.css"/>
 🚨 Mizoram Disaster Intelligence Map
 </h2>
 
-<!-- FILTER -->
-<div class="text-center mb-2">
-    <button onclick="filterMarkers('ALL')" class="btn btn-dark btn-sm">All</button>
-    <button onclick="filterMarkers('HIGH')" class="btn btn-danger btn-sm">High</button>
-    <button onclick="filterMarkers('MEDIUM')" class="btn btn-warning btn-sm">Medium</button>
-    <button onclick="filterMarkers('LOW')" class="btn btn-success btn-sm">Low</button>
+<!-- FILTER BUTTONS -->
+<div class="text-center filter-buttons">
+
+    <button onclick="filterMarkers('ALL')"
+    class="btn btn-dark btn-sm">
+    All
+    </button>
+
+    <button onclick="filterMarkers('HIGH')"
+    class="btn btn-danger btn-sm">
+    High
+    </button>
+
+    <button onclick="filterMarkers('MEDIUM')"
+    class="btn btn-warning btn-sm">
+    Medium
+    </button>
+
+    <button onclick="filterMarkers('LOW')"
+    class="btn btn-success btn-sm">
+    Low
+    </button>
+
 </div>
 
+<!-- LIVE COUNT -->
+<h5 id="markerCount"
+class="text-center text-danger">
+Showing All Disaster Locations
+</h5>
+
+<!-- MAP -->
 <div id="map" class="container"></div>
 
 <!-- LEGEND -->
 <div class="legend">
+
 <b>Severity</b><br>
+
 <span style="color:red;">●</span> High Risk<br>
 <span style="color:orange;">●</span> Medium Risk<br>
 <span style="color:green;">●</span> Low Risk
+
 </div>
 
 <!-- JS -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
 <script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
+
 <script src="https://unpkg.com/leaflet.heat/dist/leaflet-heat.js"></script>
 
 <script>
 
+// =============================
 // INIT MAP
+// =============================
+
 var map = L.map('map').setView([23.1645, 92.9376], 13);
 
-// ✅ HIGH PRECISION MAP (Google-like)
-L.tileLayer('https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
-    maxZoom: 20,
+
+// =============================
+// GOOGLE MAP STYLE
+// =============================
+
+L.tileLayer(
+'https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',
+{
+    maxZoom:20,
     subdomains:['mt0','mt1','mt2','mt3']
 }).addTo(map);
 
-// BACKEND DATA
+
+// =============================
+// BACKEND REPORT DATA
+// =============================
+
 var reports = {{ reports | tojson }};
 
-// CLUSTER
+
+// =============================
+// CLUSTER + STORAGE
+// =============================
+
 var markerCluster = L.markerClusterGroup();
+
 var heatData = [];
+
 var allMarkers = [];
 
+
+// =============================
 // COLOR FUNCTION
-function getColor(severity) {
+// =============================
+
+function getColor(severity){
+
     severity = (severity || "LOW").toUpperCase();
 
-    return severity === 'HIGH' ? 'red' :
-           severity === 'MEDIUM' ? 'orange' :
-           'green';
+    return severity === 'HIGH'
+        ? 'red'
+        : severity === 'MEDIUM'
+        ? 'orange'
+        : 'green';
 }
 
-// ADD REPORT MARKERS
+
+// =============================
+// ADD MARKERS
+// =============================
+
 reports.forEach(function(report){
 
     var lat = parseFloat(report.latitude);
     var lon = parseFloat(report.longitude);
-    if (!lat || !lon) return;
 
-    var severity = (report.severity || "LOW").toUpperCase();
+    if(!lat || !lon) return;
 
+    var severity =
+    (report.severity || "LOW").toUpperCase();
+
+    // CREATE MARKER
     var marker = L.circleMarker([lat, lon], {
-        color: getColor(severity),
-        fillColor: getColor(severity),
-        radius: 9,
-        fillOpacity: 0.85
+
+        color:getColor(severity),
+
+        fillColor:getColor(severity),
+
+        radius:9,
+
+        fillOpacity:0.85,
+
+        weight:1
+
     });
 
+    // POPUP CONTENT
     var popupContent = `
-        <div class="popup-box">
-        <h6 style="color:${getColor(severity)};">🚨 ${report.disaster_name}</h6>
-        <b>📍 Location:</b> ${report.location}<br>
-        <b>⚠ Severity:</b> <span style="color:${getColor(severity)};">${severity}</span><br>
-        <b>👤 Reported by:</b> ${report.reported_by}<br>
-        <b>📝 Description:</b><br>${report.description}
+
+    <div class="popup-box">
+
+    <h6 style="color:${getColor(severity)};">
+    🚨 ${report.disaster_name}
+    </h6>
+
+    <b>📍 Location:</b>
+    ${report.location}<br>
+
+    <b>⚠ Severity:</b>
+    <span style="color:${getColor(severity)};">
+    ${severity}
+    </span><br>
+
+    <b>👤 Reported by:</b>
+    ${report.reported_by}<br>
+
+    <b>📝 Description:</b><br>
+
+    ${report.description}
+
     `;
 
+    // IMAGE IF EXISTS
     if(report.image){
-        popupContent += `<img src="/static/uploads/${report.image}">`;
+
+        popupContent += `
+        <img src="/static/uploads/${report.image}">
+        `;
     }
 
     popupContent += `</div>`;
 
+    // BIND POPUP
     marker.bindPopup(popupContent);
+
+    // ADD TO CLUSTER
     markerCluster.addLayer(marker);
 
-    allMarkers.push({marker: marker, severity: severity});
+    // STORE
+    allMarkers.push({
+        marker:marker,
+        severity:severity
+    });
 
-    let intensity = severity === 'HIGH' ? 1 :
-                    severity === 'MEDIUM' ? 0.6 : 0.3;
+    // HEATMAP INTENSITY
+    let intensity =
+        severity === 'HIGH'
+        ? 1
+        : severity === 'MEDIUM'
+        ? 0.6
+        : 0.3;
 
     heatData.push([lat, lon, intensity]);
+
 });
+
+
+// =============================
+// ADD CLUSTER TO MAP
+// =============================
 
 map.addLayer(markerCluster);
 
+
+// =============================
 // HEATMAP
+// =============================
+
 var heatLayer = L.heatLayer(heatData, {
-    radius: 25,
-    blur: 15
+
+    radius:25,
+
+    blur:15
+
 }).addTo(map);
 
-// FILTER
-function filterMarkers(level) {
+
+// =============================
+// FILTER + AUTO ZOOM + HIGHLIGHT
+// =============================
+
+function filterMarkers(level){
+
+    // CLEAR OLD MARKERS
     markerCluster.clearLayers();
-    allMarkers.forEach(obj => {
-        if (level === "ALL" || obj.severity === level) {
+
+    let bounds = [];
+
+    let count = 0;
+
+    allMarkers.forEach(function(obj){
+
+        if(level === "ALL" ||
+        obj.severity === level){
+
+            // ADD MATCHED MARKER
             markerCluster.addLayer(obj.marker);
+
+            // HIGHLIGHT EFFECT
+            obj.marker.setStyle({
+
+                radius:15,
+
+                weight:3,
+
+                fillOpacity:1
+
+            });
+
+            // SAVE LOCATION
+            bounds.push(
+                obj.marker.getLatLng()
+            );
+
+            count++;
+
+        }else{
+
+            // DIM OTHER MARKERS
+            obj.marker.setStyle({
+
+                radius:7,
+
+                weight:1,
+
+                fillOpacity:0.4
+
+            });
         }
+
     });
+
+    // AUTO ZOOM TO AREA
+    if(bounds.length > 0){
+
+        map.fitBounds(bounds, {
+
+            padding:[50,50]
+
+        });
+    }
+
+    // UPDATE COUNT
+    if(level === "ALL"){
+
+        document.getElementById(
+        "markerCount").innerHTML =
+
+        `Showing All Disaster Locations`;
+
+    }else{
+
+        document.getElementById(
+        "markerCount").innerHTML =
+
+        `${count} ${level} Severity Locations Highlighted`;
+    }
+
 }
 
-// ✅ LIVE LOCATION TRACKING
-var userMarker, accuracyCircle;
 
-function showLiveLocation(position) {
+// =============================
+// LIVE USER LOCATION
+// =============================
+
+var userMarker;
+
+function showLiveLocation(position){
+
     var lat = position.coords.latitude;
+
     var lon = position.coords.longitude;
-    var accuracy = position.coords.accuracy;
 
-    if (userMarker) map.removeLayer(userMarker);
-    if (accuracyCircle) map.removeLayer(accuracyCircle);
+    // REMOVE OLD MARKER
+    if(userMarker){
 
-    userMarker = L.marker([lat, lon]).addTo(map)
-        .bindPopup("📍 You are here").openPopup();
+        map.removeLayer(userMarker);
+    }
 
-    
-    map.setView([lat, lon], 17);
+    // ADD USER MARKER
+    userMarker = L.marker([lat, lon])
+
+    .addTo(map)
+
+    .bindPopup("📍 You are here");
+
 }
 
-// WATCH USER
-if (navigator.geolocation) {
-    navigator.geolocation.watchPosition(showLiveLocation);
-} else {
+
+// =============================
+// WATCH LOCATION
+// =============================
+
+if(navigator.geolocation){
+
+    navigator.geolocation.watchPosition(
+    showLiveLocation);
+
+}else{
+
     alert("Geolocation not supported");
 }
 
-// ✅ HIGHLIGHT MZU ROAD (EDIT COORDS IF NEEDED)
+
+// =============================
+// OPTIONAL ROAD HIGHLIGHT
+// =============================
+
 var mzuRoad = [
+
     [23.1645, 92.9376],
+
     [23.1655, 92.9390],
+
     [23.1665, 92.9405]
+
 ];
 
 L.polyline(mzuRoad, {
-    color: 'blue',
-    weight: 5
-}).addTo(map).bindPopup("MZU Road");
+
+    color:'blue',
+
+    weight:5
+
+}).addTo(map)
+
+.bindPopup("MZU Road");
 
 </script>
 

@@ -47,7 +47,8 @@ def init_db():
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     title TEXT,
     message TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    is_read INTEGER DEFAULT 0
     )
     """)
 
@@ -56,6 +57,21 @@ def init_db():
     CREATE TABLE IF NOT EXISTS disasters (
         disaster_id INTEGER PRIMARY KEY AUTOINCREMENT,
         disaster_name TEXT NOT NULL
+    )
+    """)
+
+    # ADMIN REPORT TABLE
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS admin_reports (
+    admin_report_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    disaster_id INTEGER,
+    district TEXT,
+    area TEXT,
+    description TEXT,
+    reported_by TEXT DEFAULT 'Admin',
+    status TEXT DEFAULT 'Confirmed by Admin',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (disaster_id) REFERENCES disasters(disaster_id)
     )
     """)
 
@@ -135,21 +151,13 @@ def home():
         LIMIT 5
     """).fetchall()
 
-    notifications = conn.execute("""
-    SELECT * FROM notifications
-    ORDER BY id DESC
-    """).fetchall()
+    # COUNT ONLY UNREAD NOTIFICATIONS
+    notification_count = conn.execute("""
+        SELECT COUNT(*) FROM notifications
+        WHERE is_read = 0
+    """).fetchone()[0]
 
     conn.close()
-
-    # CHECK IF USER HAS SEEN NOTIFICATIONS
-    if session.get("notification_seen"):
-
-        notification_count = 0
-
-    else:
-
-        notification_count = len(notifications)
 
     return render_template(
         "index.html",
@@ -159,6 +167,7 @@ def home():
 
 
 
+#----------------------notification delete and edit-------------------------------------------------
 @app.route("/delete_alert/<int:id>")
 def delete_alert(id):
 
@@ -242,7 +251,7 @@ def register():
 
 
 
-# ---------------- POST ALERT ----------------
+# ---------------- Notification by Admin----------------
 @app.route("/post_alert", methods=["GET", "POST"])
 def post_alert():
 
@@ -257,15 +266,12 @@ def post_alert():
         conn = sqlite3.connect("database.db")
 
         conn.execute("""
-        INSERT INTO notifications (title, message)
-        VALUES (?, ?)
+        INSERT INTO notifications (title, message,is_read)
+        VALUES (?, ?, 0)
         """, (title, message))
 
         conn.commit()
         conn.close()
-
-        # RESET NOTIFICATION STATUS
-        session["notification_seen"] = False
 
         return redirect("/admin_dashboard")
 
@@ -273,14 +279,20 @@ def post_alert():
 
 
 # ---------------- Notification icon ----------------
-# ---------------- Notification icon ----------------
 @app.route("/notifications")
 def notifications():
 
-    session["notification_seen"] = True
-
     conn = sqlite3.connect("database.db")
     conn.row_factory = sqlite3.Row
+
+    # MARK ALL NOTIFICATIONS AS READ
+    conn.execute("""
+    UPDATE notifications
+    SET is_read = 1
+    WHERE is_read = 0
+    """)
+
+    conn.commit()
 
     notifications = conn.execute("""
     SELECT * FROM notifications
@@ -293,6 +305,21 @@ def notifications():
         "notifications.html",
         notifications=notifications
     )
+
+# ---------------- LIVE NOTIFICATION COUNT API ----------------
+@app.route("/get_notification_count")
+def get_notification_count():
+
+    conn = sqlite3.connect("database.db")
+
+    unread = conn.execute("""
+    SELECT COUNT(*) FROM notifications
+    WHERE is_read = 0
+    """).fetchone()[0]
+
+    conn.close()
+
+    return {"count": unread}
 
 # ---------------- USER LOGIN ----------------
 @app.route("/login", methods=["GET","POST"])
@@ -386,6 +413,16 @@ def report():
         (user_id, disaster_id, location, description, latitude, longitude, reported_by, image, severity, keywords)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, (user_id, disaster_id, location, description, latitude, longitude, "User", filename, severity, ", ".join(keywords)))
+       
+       
+        # INSERT NOTIFICATION
+        title = "New Disaster Report"
+        message = f"""
+        A new {disaster} report has been submitted by a user at {location}.
+       Authorities will verify the report soon.
+        """
+        cursor.execute("""
+        INSERT INTO notifications(title, message, is_read)VALUES (?, ?, 0)""", (title, message))
 
         conn.commit()
         conn.close()
@@ -398,18 +435,38 @@ def report():
 # ---------------- ALERTS PAGE ----------------
 @app.route("/alerts")
 def alerts():
-     conn = sqlite3.connect("database.db")
-     conn.row_factory = sqlite3.Row
 
-     reports = conn.execute("""
-       SELECT reports.*, disasters.disaster_name, users.name
+    conn = sqlite3.connect("database.db")
+    conn.row_factory = sqlite3.Row
+
+    # =========================
+    # USER REPORTS
+    # =========================
+    user_reports = conn.execute("""
+        SELECT reports.*, disasters.disaster_name, users.name
         FROM reports
         LEFT JOIN users ON reports.user_id = users.user_id
         JOIN disasters ON reports.disaster_id = disasters.disaster_id
         ORDER BY reports.report_id DESC
     """).fetchall()
-     conn.close()
-     return render_template("alerts.html",reports=reports)
+
+    # =========================
+    # ADMIN REPORTS
+    # =========================
+    admin_reports = conn.execute("""
+        SELECT admin_reports.*, disasters.disaster_name
+        FROM admin_reports
+        JOIN disasters ON admin_reports.disaster_id = disasters.disaster_id
+        ORDER BY admin_report_id DESC
+    """).fetchall()
+
+    conn.close()
+
+    return render_template(
+        "alerts.html",
+        reports=user_reports,
+        admin_reports=admin_reports
+    )
 
 
 # ---------------- ABOUT PAGE ----------------
@@ -497,7 +554,23 @@ def admin_dashboard():
     FROM reports
     JOIN disasters
     ON reports.disaster_id = disasters.disaster_id
-    ORDER BY reports.report_id DESC
+    ORDER BY 
+                            CASE
+        WHEN reports.status = 'Pending' THEN 1
+        WHEN reports.status = 'Confirmed by Admin' THEN 2
+        WHEN reports.status = 'Rejected by Admin' THEN 3
+        ELSE 4
+    END,
+
+    reports.report_id DESC
+
+    """).fetchall()
+
+    admin_reports = conn.execute("""
+    SELECT admin_reports.*, disasters.disaster_name
+    FROM admin_reports
+    JOIN disasters ON admin_reports.disaster_id = disasters.disaster_id
+    ORDER BY admin_reports.admin_report_id DESC
     LIMIT 5
     """).fetchall()
 
@@ -508,48 +581,9 @@ def admin_dashboard():
     total_reports=total_reports,
     pending_reports=pending_reports,
     approved_reports=approved_reports,
-    reports=reports
+    reports=reports,
+    admin_reports=admin_reports
     )
-
-
-# ---------------- DELETE REPORT ----------------
-@app.route("/delete/<int:id>")
-def delete(id):
-
-    conn = sqlite3.connect("database.db")
-    conn.execute("DELETE FROM reports WHERE report_id = ?", (id,))
-    conn.commit()
-    conn.close()
-    return redirect(url_for("admin_dashboard"))
-
-
-# ---------------- Approve REPORT ----------------
-@app.route("/approve/<int:id>")
-def approve(id):
-
-    conn = sqlite3.connect("database.db")
-    conn.execute(
-    "UPDATE reports SET status='Confirmed by Admin' WHERE report_id=?", (id,)
-    )
-    conn.commit()
-    conn.close()
-
-    return redirect("/admin_dashboard")
-
-
-# ---------------- Reject REPORT ----------------
-@app.route("/reject/<int:id>")
-def reject(id):
-
-    conn = sqlite3.connect("database.db")
-    conn.execute(
-    "UPDATE reports SET status='Rejected by Admin' WHERE report_id=?", (id,)
-    )
-    conn.commit()
-    conn.close()
-
-    return redirect("/admin_dashboard")
-
 
 # ---------------- ADMIN REPORT ----------------
 @app.route("/admin_report", methods=["GET", "POST"])
@@ -563,16 +597,40 @@ def admin_report():
     if request.method == "POST":
 
         disaster_id = request.form["disaster_id"]
-        location = request.form["location"]
-        latitude = request.form["latitude"]
-        longitude = request.form["longitude"]
+        district = request.form["district"]
+        area = request.form["area"]
         description = request.form["description"]
 
         conn.execute("""
-        INSERT INTO reports
-        (disaster_id, location, latitude, longitude, description, reported_by, status)
-        VALUES (?, ?, ?, ?, ?, 'Admin', 'Confirmed by Admin')
-        """, (disaster_id, location, latitude, longitude, description))
+        INSERT INTO admin_reports
+        (disaster_id, district, area, description)
+        VALUES (?, ?, ?, ?)
+        """, (disaster_id, district, area, description))
+
+        disaster_data = conn.execute("""
+         SELECT disaster_name
+        FROM disasters
+         WHERE disaster_id=?
+        """, (disaster_id,)).fetchone()
+
+       # CREATE NOTIFICATION
+
+        title = "Emergency Alert Published"
+
+        message = f"""
+Admin published a {disaster_data['disaster_name']} alert
+for {district}, {area}.
+Please stay alert and follow safety guidelines.
+"""
+
+        conn.execute("""
+
+INSERT INTO notifications
+(title, message, is_read)
+
+        VALUES (?, ?, 0)
+
+        """, (title, message))
 
         conn.commit()
         conn.close()
@@ -583,6 +641,122 @@ def admin_report():
     return render_template("admin_report.html", disasters=disasters)
 
 
+#Reported by admin
+@app.route('/delete_admin_report/<int:id>')
+def delete_admin_report(id):
+
+    if "admin" not in session:
+        return redirect("/admin_login")
+
+    conn = sqlite3.connect('database.db')
+
+    conn.execute("""
+    DELETE FROM admin_reports
+    WHERE admin_report_id=?
+    """, (id,))
+
+    conn.commit()
+    conn.close()
+
+    return redirect('/admin_dashboard')
+
+
+# ---------------- DELETE REPORT by admin----------------
+@app.route("/delete/<int:id>")
+def delete(id):
+
+    conn = sqlite3.connect("database.db")
+    conn.execute("DELETE FROM reports WHERE report_id = ?", (id,))
+    conn.commit()
+    conn.close()
+    return redirect(url_for("admin_dashboard"))
+
+# ---------------- Approve REPORT ----------------
+@app.route("/approve/<int:id>")
+def approve(id):
+
+    conn = sqlite3.connect("database.db")
+    conn.row_factory = sqlite3.Row
+
+    # UPDATE REPORT STATUS
+    conn.execute("""
+    UPDATE reports
+    SET status='Confirmed by Admin'
+    WHERE report_id=?
+    """, (id,))
+
+    # GET REPORT DETAILS
+    report = conn.execute("""
+    SELECT reports.location,
+           disasters.disaster_name
+    FROM reports
+    JOIN disasters
+    ON reports.disaster_id = disasters.disaster_id
+    WHERE reports.report_id=?
+    """, (id,)).fetchone()
+
+    # CREATE NOTIFICATION
+    title = "Disaster Verified"
+
+    message = f"""
+Admin verified a {report['disaster_name']} report at {report['location']}.
+Please stay alert and follow safety instructions.
+"""
+
+    conn.execute("""
+    INSERT INTO notifications (title, message, is_read)
+    VALUES (?, ?, 0)
+    """, (title, message))
+
+    conn.commit()
+    conn.close()
+
+    return redirect("/admin_dashboard")
+
+
+# ---------------- Reject REPORT ----------------
+@app.route("/reject/<int:id>")
+def reject(id):
+
+    conn = sqlite3.connect("database.db")
+    conn.row_factory = sqlite3.Row
+
+    # GET REPORT DETAILS BEFORE DELETE
+    report = conn.execute("""
+    SELECT reports.location,
+           disasters.disaster_name
+    FROM reports
+    JOIN disasters
+    ON reports.disaster_id = disasters.disaster_id
+    WHERE reports.report_id=?
+    """, (id,)).fetchone()
+
+    # CREATE REJECTION NOTIFICATION
+    title = "False Disaster Alert Removed"
+
+    message = f"""
+A reported {report['disaster_name']} alert at {report['location']}
+was rejected by admin after verification due to invalid or false information.
+"""
+
+    conn.execute("""
+    INSERT INTO notifications (title, message, is_read)
+    VALUES (?, ?, 0)
+    """, (title, message))
+
+    # DELETE REJECTED REPORT
+    conn.execute("""
+    DELETE FROM reports
+    WHERE report_id=?
+    """, (id,))
+
+    conn.commit()
+    conn.close()
+
+    return redirect("/admin_dashboard")
+
+
+
 # ---------------- ANALYTICS ----------------
 @app.route("/analytics")
 def analytics():
@@ -591,10 +765,26 @@ def analytics():
     conn.row_factory = sqlite3.Row
 
     data = conn.execute("""
-        SELECT disasters.disaster_name, COUNT(*) as total
-        FROM reports
-        JOIN disasters ON reports.disaster_id = disasters.disaster_id
-        GROUP BY disasters.disaster_name
+
+        SELECT disaster_name, COUNT(*) as total
+        FROM (
+
+            SELECT disasters.disaster_name
+            FROM reports
+            JOIN disasters
+            ON reports.disaster_id = disasters.disaster_id
+
+            UNION ALL
+
+            SELECT disasters.disaster_name
+            FROM admin_reports
+            JOIN disasters
+            ON admin_reports.disaster_id = disasters.disaster_id
+
+        )
+
+        GROUP BY disaster_name
+
     """).fetchall()
 
     conn.close()
@@ -602,19 +792,17 @@ def analytics():
     labels = [row["disaster_name"] for row in data]
     values = [row["total"] for row in data]
 
-    return render_template("analytics.html", labels=labels, values=values)
+    return render_template(
+        "analytics.html",
+        labels=labels,
+        values=values
+    )
 
 
 # ---------------- Emergency ----------------
 @app.route('/emergency')
 def emergency():
-    conn = sqlite3.connect('database.db')
-    conn.row_factory = sqlite3.Row
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM emergency_contacts ORDER BY district")
-    contacts = cursor.fetchall()
-    conn.close()
-    return render_template('emergency.html', contacts=contacts)
+    return render_template('emergency.html')
 
 
 

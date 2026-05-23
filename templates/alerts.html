@@ -1,109 +1,371 @@
 <!DOCTYPE html>
-<html>
-<head>
-    <title>Disaster Alerts</title>
+<html lang="en">
 
-    <link rel="stylesheet"
-    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Disaster Alerts</title>
+
+<link rel="stylesheet"
+href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+
+<style>
+
+body{
+    background:#f5f7fb;
+    font-family:Arial,sans-serif;
+}
+
+/* Main Heading */
+
+.main-heading{
+    text-align:center;
+    color:#dc3545;
+    margin:30px 0;
+    font-weight:bold;
+}
+
+/* Section Heading */
+
+.section-title{
+    margin-top:40px;
+    margin-bottom:25px;
+    color:#dc3545;
+    font-weight:bold;
+    border-left:5px solid #dc3545;
+    padding-left:10px;
+}
+
+/* Card Styling */
+
+.report-card{
+    border:none;
+    border-radius:15px;
+    overflow:hidden;
+    transition:0.3s;
+}
+
+.report-card:hover{
+    transform:translateY(-5px);
+}
+
+/* Image */
+
+.report-image{
+    height:220px;
+    width:100%;
+    object-fit:cover;
+}
+
+/* Text */
+
+.card-title{
+    font-weight:bold;
+}
+
+.info-text{
+    margin-bottom:8px;
+}
+
+/* Keywords */
+
+.keyword{
+    color:#0d6efd;
+    font-weight:500;
+}
+
+</style>
+
 </head>
 
-<body style="background-color:#f5f5f5;">
+<body>
 
-<div class="container mt-5">
+<div class="container">
 
-    <h2 class="mb-4 text-danger text-center">🚨 Disaster Alerts</h2>
+<!-- MAIN HEADING -->
 
-    <div class="row">
+<h2 class="main-heading">
+🚨 Disaster Alerts
+</h2>
 
-        {% for r in reports %}
-        <div class="col-md-4 mb-4">
-            <div class="card shadow-sm h-100 border-0 rounded-3">
-                <div class="card-body">
 
-                    <!-- 🔥 Disaster Title -->
-                    <h5 class="card-title fw-bold text-dark">
-                        {{ r.disaster_name }}
-                    </h5>
 
-                    <!-- 📍 Location -->
-                    <p class="mb-1">
-                        <b>Location:</b> {{ r.location }}
-                    </p>
+<!-- ================= USER REPORTS ================= -->
 
-                    <!-- 👤 Reported By -->
-                    <p class="mb-2">
-                        <b>Reported By:</b>
-                        {% if r.reported_by == "Admin" %}
-                            <span class="badge bg-primary">Admin</span>
-                        {% else %}
-                            <span class="badge bg-secondary">User</span>
-                        {% endif %}
-                    </p>
-                    
+<h3 class="section-title">
+👥 User Reports
+</h3>
 
-                    <!-- 🖼️ IMAGE (ABOVE DESCRIPTION) -->
-                    <b>Image:</b>
-                    {% if r.image %}
-                    <a href="{{ url_for('static', filename='uploads/' + r.image) }}" target="_blank">
-                        <img src="{{ url_for('static', filename='uploads/' + r.image) }}" 
-                             class="img-fluid rounded mb-3"
-                             style="height:200px; width:100%; object-fit:cover; cursor:pointer;">
-                    </a>
-                    {% endif %}
+<div class="row">
 
-                    <!-- 📝 Description -->
-                    <p class="mb-2">
-                        <b>Description:</b> {{ r.description }}
-                    </p>
+{% for r in reports %}
 
-                    <!-- 🤖 AI SEVERITY -->
-                    <p class="mb-2">
-                        <b>AI Severity:</b>
-                        
-                        {% if r.severity == "High" %}
-                            <span class="badge bg-danger">🔴 High</span>
-                        {% elif r.severity == "Medium" %}
-                            <span class="badge bg-warning text-dark">🟡 Medium</span>
-                        {% else %}
-                            <span class="badge bg-success">🟢 Low</span>
-                        {% endif %}
-                    </p>
+<div class="col-md-4 mb-4">
 
-                    <!-- 🧠 AI KEYWORDS -->
-                    <p class="mb-2">
-                        <b>AI Keywords:</b> 
-                        <span class="text-primary">{{ r.keywords }}</span>
-                    </p>
+<div class="card shadow report-card h-100">
 
-                    <!-- 🏷️ Report Type -->
-                    {% if r.reported_by == "Admin" %}
-                        <span class="badge bg-dark mb-2">Admin Verified</span>
-                    {% else %}
-                        <span class="badge bg-info text-dark mb-2">User Report</span>
-                    {% endif %}
+<!-- IMAGE -->
 
-                    <!-- 📊 Status -->
-                    <p class="mt-2">
-                        <b>Status:</b>
+{% if r.image %}
 
-                        {% if r.status == "Confirmed by Admin" %}
-                            <span class="badge bg-success">Confirmed</span>
+<a href="{{ url_for('static',
+filename='uploads/' + r.image) }}" target="_blank">
 
-                        {% elif r.status == "Rejected by Admin" %}
-                            <span class="badge bg-danger">Rejected</span>
+<img src="{{ url_for('static',
+filename='uploads/' + r.image) }}"
+class="report-image">
 
-                        {% else %}
-                            <span class="badge bg-warning text-dark">Pending</span>
-                        {% endif %}
-                    </p>
+</a>
 
-                </div>
-            </div>
-        </div>
-        {% endfor %}
+{% endif %}
 
-    </div>
+<div class="card-body">
+
+<!-- TITLE -->
+
+<h5 class="card-title">
+{{ r.disaster_name }}
+</h5>
+
+<!-- LOCATION -->
+
+<p class="info-text">
+<b>📍 Location:</b>
+{{ r.location }}
+</p>
+
+<!-- DESCRIPTION -->
+
+<p class="info-text">
+<b>📝 Description:</b>
+{{ r.description }}
+</p>
+
+<!-- AI SEVERITY -->
+
+<p class="info-text">
+
+<b>🤖 AI Severity:</b>
+
+{% if r.severity == "High" %}
+
+<span class="badge bg-danger">
+🔴 High
+</span>
+
+{% elif r.severity == "Medium" %}
+
+<span class="badge bg-warning text-dark">
+🟡 Medium
+</span>
+
+{% else %}
+
+<span class="badge bg-success">
+🟢 Low
+</span>
+
+{% endif %}
+
+</p>
+
+<!-- AI KEYWORDS -->
+
+<p class="info-text">
+
+<b>🧠 AI Keywords:</b>
+
+<span class="keyword">
+{{ r.keywords }}
+</span>
+
+</p>
+
+<!-- REPORTED BY -->
+
+<p class="info-text">
+
+<b>👤 Reported By:</b>
+
+{% if r.reported_by == "Admin" %}
+
+<span class="badge bg-primary">
+Admin
+</span>
+
+{% else %}
+
+<span class="badge bg-secondary">
+User
+</span>
+
+{% endif %}
+
+</p>
+
+<!-- STATUS -->
+
+<p class="info-text">
+
+<b>📊 Status:</b>
+
+{% if r.status == "Confirmed by Admin" %}
+
+<span class="badge bg-success">
+Confirmed
+</span>
+
+{% elif r.status == "Rejected by Admin" %}
+
+<span class="badge bg-danger">
+Rejected
+</span>
+
+{% else %}
+
+<span class="badge bg-warning text-dark">
+Pending
+</span>
+
+{% endif %}
+
+</p>
+
+</div>
+
+</div>
+
+</div>
+
+{% endfor %}
+
+</div>
+
+
+
+<!-- ================= ADMIN REPORTS ================= -->
+
+<h3 class="section-title">
+🚨 Admin Published Alerts
+</h3>
+
+<div class="row">
+
+{% for a in admin_reports %}
+
+<div class="col-md-4 mb-4">
+
+<div class="card shadow report-card h-100 border-danger">
+
+<!-- IMAGE -->
+
+{% if a.image %}
+
+<a href="{{ url_for('static',
+filename='uploads/' + a.image) }}" target="_blank">
+
+<img src="{{ url_for('static',
+filename='uploads/' + a.image) }}"
+class="report-image">
+
+</a>
+
+{% endif %}
+
+<div class="card-body">
+
+<!-- TITLE -->
+
+<h5 class="card-title text-danger">
+{{ a.disaster_name }}
+</h5>
+
+<!-- DISTRICT -->
+
+<p class="info-text">
+
+<b>📍 District:</b>
+{{ a.district }}
+
+</p>
+
+<!-- AREA -->
+
+<p class="info-text">
+
+<b>📌 Area:</b>
+{{ a.area }}
+
+</p>
+
+<!-- DESCRIPTION -->
+
+<p class="info-text">
+
+<b>📝 Description:</b>
+{{ a.description }}
+
+</p>
+
+<!-- STATUS -->
+
+<p class="info-text">
+
+<b>📊 Status:</b>
+
+<span class="badge bg-danger">
+{{ a.status }}
+</span>
+
+</p>
+
+<!-- DATE -->
+
+<p class="info-text">
+
+<b>🕒 Published:</b>
+{{ a.created_at }}
+
+</p>
+
+<!-- BADGE -->
+
+<span class="badge bg-dark mb-2">
+Admin Alert
+</span>
+
+<!-- DELETE BUTTON -->
+
+{% if session.get("admin") %}
+
+<div class="mt-3">
+
+<a href="/delete_admin_report/{{ a.admin_report_id }}"
+class="btn btn-danger btn-sm"
+onclick="return confirm('Delete this admin alert?')">
+
+Delete
+
+</a>
+
+</div>
+
+{% endif %}
+
+</div>
+
+</div>
+
+</div>
+
+{% endfor %}
+
+</div>
+
 </div>
 
 </body>
+
 </html>
